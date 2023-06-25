@@ -1,75 +1,51 @@
 import streamlit as st
+import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-from typing import Dict, List, Tuple
-import pandas as pd
+from typing import Dict
 
 def line_plot_ratios(data_dict: Dict[str, pd.DataFrame]) -> None:
-    """
-    Create line plots of the ratios over time for each company.
+    st.subheader("Line Plot of Ratios")
 
-    Parameters:
-    - data_dict (dict): A dictionary containing the fetched data for each company.
-
-    Returns:
-    - None
-    """
-    st.subheader("Ratios Over Time")
-    sns.set(style="darkgrid")
     for company, data in data_dict.items():
-        st.write(f"## Ratio Over Time for {company}")
-        plt.figure(figsize=(12, 6))
-        sns.lineplot(data=data, x=data.index, y=f"Ratio_{company}")
-        plt.xlabel("Date")
-        plt.ylabel("Ratio")
-        plt.xticks(rotation=45)
-        st.pyplot()
+        st.write(f"Company: {company}")
 
-def scatter_plot_profit(profit_dict: Dict[str, List[Tuple[int, int, float]]]) -> None:
-    """
-    Create a scatter plot of the profit opportunities.
+        if not data.empty and 'Ratio' in data.columns:
+            # Plot line chart
+            fig, ax = plt.subplots()
+            sns.lineplot(data=data.reset_index(), x="Date", y="Ratio")
+            plt.xlabel("Date")
+            plt.ylabel("Ratio")
+            plt.title(f"Ratio of {company}")
+            st.pyplot(fig)
+        else:
+            st.write("Data is empty or does not contain the 'Ratio' column for this company. Skipping the plot.")
 
-    Parameters:
-    - profit_dict (dict): A dictionary containing the profit opportunities for each combination of companies.
+def scatter_plot_profit(profit_dict: Dict[str, pd.DataFrame]) -> None:
+    st.subheader("Scatter Plot of Profit")
+    
+    for company, data in profit_dict.items():
+        st.write(f"Company: {company}")
+        
+        # Plot scatter chart
+        fig, ax = plt.subplots()
+        sns.scatterplot(data=data, x="Days Held", y="Profit", hue="Buy/Sell")
+        plt.xlabel("Days Held")
+        plt.ylabel("Profit")
+        plt.title(f"Profit of {company}")
+        st.pyplot(fig)
 
-    Returns:
-    - None
-    """
-    st.subheader("Profit Opportunities")
-    plt.figure(figsize=(12, 6))
-    for combination, opportunities in profit_dict.items():
-        x = [opportunity[0] for opportunity in opportunities]
-        y = [opportunity[1] for opportunity in opportunities]
-        z = [opportunity[2] for opportunity in opportunities]
-        plt.scatter(x, y, c=z, cmap='coolwarm', alpha=0.7)
-    plt.colorbar(label='Profit')
-    plt.xlabel('Buy Index')
-    plt.ylabel('Sell Index')
-    plt.xticks(list(range(len(data_dict))), list(data_dict.keys()), rotation=45)
-    st.pyplot()
-
-def heatmap_profit(profit_dict: Dict[str, List[Tuple[int, int, float]]]) -> None:
-    """
-    Create a heatmap of the profit opportunities.
-
-    Parameters:
-    - profit_dict (dict): A dictionary containing the profit opportunities for each combination of companies.
-
-    Returns:
-    - None
-    """
-    st.subheader("Profit Opportunities Heatmap")
-    max_profit = max([opportunity[2] for opportunities in profit_dict.values() for opportunity in opportunities])
-    profit_matrix = []
-    for i, combination in enumerate(profit_dict.keys()):
-        opportunities = profit_dict[combination]
-        row = [opportunity[2] if opportunity[2] > 0 else 0 for opportunity in opportunities]
-        row += [0] * (len(data_dict) - len(opportunities))
-        profit_matrix.append(row)
-    plt.figure(figsize=(12, 8))
-    sns.heatmap(profit_matrix, cmap='coolwarm', cbar=True, annot=True, vmin=0, vmax=max_profit, fmt=".2f",
-                xticklabels=list(data_dict.keys()), yticklabels=list(profit_dict.keys()))
-    plt.xlabel('Companies')
-    plt.ylabel('Combinations')
-    plt.xticks(rotation=45)
-    st.pyplot()
+def heatmap_profit(profit_dict: Dict[str, pd.DataFrame]) -> None:
+    st.subheader("Heatmap of Profit")
+    
+    for company, data in profit_dict.items():
+        st.write(f"Company: {company}")
+        
+        # Plot heatmap
+        fig, ax = plt.subplots()
+        data_pivot = data.pivot(index="Days Held", columns="Buy/Sell", values="Profit")
+        sns.heatmap(data_pivot, annot=True, fmt=".2f", cmap="RdYlGn_r")
+        plt.xlabel("Buy/Sell")
+        plt.ylabel("Days Held")
+        plt.title(f"Profit Heatmap of {company}")
+        st.pyplot(fig)
