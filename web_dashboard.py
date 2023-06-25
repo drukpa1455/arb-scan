@@ -1,27 +1,44 @@
 import streamlit as st
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 from fetch_data import fetch_data_parallel
-from calculate_ratios import calculate_ratios
 from calculate_profit import calculate_profit
 from visualizations import line_plot_ratios, scatter_plot_profit, heatmap_profit
-from typing import Dict, List, Tuple
+from typing import List, Dict, Any
 
-def create_web_dashboard(company_data: List[Dict[str, any]], start_date: str, end_date: str, fx_rate: float) -> None:
-    # Fetch data
+def create_dashboard(company_data: List[Dict[str, Any]], start_date: str, end_date: str, fx_rate: float) -> None:
+    """
+    Creates a stock profit opportunities dashboard.
+
+    Parameters:
+    - company_data (list): A list of dictionaries representing the companies with 'name' and 'multiplier' keys.
+    - start_date (str): The start date in the format 'YYYY-MM-DD'.
+    - end_date (str): The end date in the format 'YYYY-MM-DD'.
+    - fx_rate (float): The exchange rate.
+
+    Returns:
+    - None
+    """
+
+    # Fetch data in parallel
     data_dict = fetch_data_parallel(company_data, start_date, end_date)
 
     # Calculate ratios
-    ratios_dict = calculate_ratios(data_dict)
+    ratios_dict = {}
+    for company, data in data_dict.items():
+        ratios_dict[company] = data['Ratio_' + company]
 
-    # Calculate profit
+    # Calculate profit opportunities
     profit_dict = calculate_profit(ratios_dict, fx_rate)
 
-    # Visualizations
+    # Create visualizations
     line_plot_ratios(data_dict)
     scatter_plot_profit(profit_dict)
     heatmap_profit(profit_dict)
 
-def main():
-    st.set_page_config(page_title="Arbitrage Scanner", layout="wide")
+def main() -> None:
+    st.title('Stock Profit Opportunities Dashboard')
 
     # Define list of companies and their multipliers
     company_data = [
@@ -38,16 +55,21 @@ def main():
         {'name': 'TX', 'multiplier': 1},
         {'name': 'TGS', 'multiplier': 1},
     ]
+    
+    companies = [company['name'] for company in company_data]
+    selected_companies = st.multiselect('Select companies', companies, default=companies)
 
-    # Define start and end dates
-    start_date = '2023-06-01'
-    end_date = '2023-06-30'
+    company_data = [company for company in company_data if company['name'] in selected_companies]
 
-    # Set initial FX rate
-    fx_rate = 100
+    # Select start and end dates
+    start_date = st.date_input("Start date", value=pd.to_datetime('2023-01-01'))
+    end_date = st.date_input("End date", value=pd.to_datetime('2023-01-31'))
 
-    # Create the web dashboard
-    create_web_dashboard(company_data, start_date, end_date, fx_rate)
+    # Select fx rate
+    fx_rate = st.slider('Select FX rate', min_value=1.0, max_value=200.0, value=100.0)
+
+    # Create the dashboard
+    create_dashboard(company_data, start_date.strftime('%Y-%m-%d'), end_date.strftime('%Y-%m-%d'), fx_rate)
 
 if __name__ == '__main__':
     main()

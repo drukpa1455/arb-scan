@@ -1,79 +1,38 @@
-# Stock Profit Opportunities Dashboard
+# Arbitrage Scanner Documentation
 
-This project is a Python-based dashboard that analyzes stock price data for a collection of companies and identifies profit opportunities based on the calculated ratios. It provides visualizations and rankings of the profit opportunities to aid in investment decision-making.
+This project is an arbitrage scanner that analyzes stock price data and calculates potential arbitrage opportunities. It fetches historical stock data from Yahoo Finance, calculates financial ratios, and visualizes the data in a web dashboard.
 
-1. Update the company_data list in the code below with the companies you want to analyze. Each company should be represented as a dictionary with the keys 'name' and 'multiplier', where 'name' is the ticker symbol and 'multiplier' is the scaling factor.
+## Getting Started
 
-```python
-import pandas as pd
-import yfinance as yf
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-from concurrent.futures import ProcessPoolExecutor, as_completed
-from tqdm import tqdm
-import itertools
+1. Clone the repository: `git clone https://github.com/your-username/arb-scan.git`
+2. Install the required dependencies: `pip install -r requirements.txt`
+3. Run the web dashboard: `streamlit run web_dashboard.py`
 
-# Define list of companies and their multipliers
-company_data = [
-    {'name': 'CEPU', 'multiplier': 10},
-    {'name': 'CRESY', 'multiplier': 1},
-    {'name': 'EDN', 'multiplier': 20},
-    {'name': 'GGAL', 'multiplier': 10},
-    {'name': 'SUPV', 'multiplier': 5},
-    {'name': 'IRS', 'multiplier': 10},
-    {'name': 'LOMA', 'multiplier': 5},
-    {'name': 'PAM', 'multiplier': 25},
-    {'name': 'TEO', 'multiplier': 5},
-    {'name': 'TS', 'multiplier': 1},
-    {'name': 'TX', 'multiplier': 1},
-    {'name': 'TGS', 'multiplier': 1},
-]
+## Codebase Index
 
-# Define start and end dates
-one_month_ago = (pd.Timestamp.today() - pd.DateOffset(months=1)).strftime('%Y-%m-%d')
-now = pd.Timestamp.today().strftime('%Y-%m-%d')
+- `calculate_profit.py`: Contains functions for calculating the potential profit from arbitrage opportunities.
+- `calculate_ratios.py`: Contains functions for calculating financial ratios from stock data.
+- `fetch_data.py`: Contains functions for fetching historical stock data from Yahoo Finance.
+- `main.py`: The main entry point of the application.
+- `visualizations.py`: Contains functions for visualizing data using Matplotlib and Seaborn.
+- `web_dashboard.py`: Implements the Streamlit web dashboard.
 
-# Set initial fx rate
-fx_rate = 100
+## Usage
 
-# Fetch data for a single company
-def fetch_data(company):
-    # ...
+1. Run the `main.py` script to fetch data, calculate ratios, and calculate profits.
+2. Access the web dashboard by running `streamlit run web_dashboard.py` and open the provided URL in a browser.
+3. Select the desired date range and view the visualizations of financial ratios and potential profits.
 
-# Fetch data for the given companies in parallel
-def fetch_data_parallel(companies, start_date, end_date):
-    # ...
+## Contributing
 
-# Calculate ratios based on the fetched data
-def calculate_ratios(data_dict):
-    # ...
+Contributions are welcome! If you would like to contribute to this project, please follow these steps:
 
-# Calculate profit opportunities based on the ratios
-def calculate_profit(ratios_dict, fx_rate):
-    # ...
+1. Fork the repository.
+2. Create a new branch: `git checkout -b feature/your-feature-name`.
+3. Make your changes and commit them: `git commit -m "Add your feature description"`.
+4. Push to the branch: `git push origin feature/your-feature-name`.
+5. Create a pull request with a detailed description of your changes.
 
-# Create a line plot to visualize the ratios of each company over time
-def line_plot_ratios(data_dict):
-    # ...
+## License
 
-# Create a scatter plot to visualize the profit opportunities
-def scatter_plot_profit(profit_dict):
-    # ...
-
-# Create a heatmap to visualize the profit opportunities
-def heatmap_profit(profit_dict):
-    # ...
-
-# Fetch data, calculate ratios, and calculate profit in parallel
-data_dict = fetch_data_parallel(company_data, one_month_ago, now)
-ratios_dict = calculate_ratios(data_dict)
-profit_dict = calculate_profit(ratios_dict, fx_rate)
-
-# Create visualizations
-line_plot_ratios(data_dict)
-scatter_plot_profit(profit_dict)
-heatmap_profit(profit_dict)
-```
-
-Run the Python script and observe the generated visualizations.
+This project is licensed under the [MIT License](LICENSE).

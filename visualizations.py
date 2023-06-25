@@ -21,12 +21,23 @@ def line_plot_ratios(data_dict: Dict[str, pd.DataFrame]) -> None:
         else:
             st.write("Data is empty or does not contain the 'Ratio' column for this company. Skipping the plot.")
 
+from pandas import DataFrame
+
 def scatter_plot_profit(profit_dict: Dict[str, pd.DataFrame]) -> None:
     st.subheader("Scatter Plot of Profit")
     
     for company, data in profit_dict.items():
         st.write(f"Company: {company}")
         
+        if not isinstance(data, DataFrame):
+            st.write(f"Data for {company} is not a DataFrame. Skipping this plot.")
+            continue
+
+        # Check if "Days Held" and "Profit" are in data columns
+        if not ('Days Held' in data.columns and 'Profit' in data.columns):
+            st.write(f"Data for {company} does not contain 'Days Held' or 'Profit' column. Skipping this plot.")
+            continue
+
         # Plot scatter chart
         fig, ax = plt.subplots()
         sns.scatterplot(data=data, x="Days Held", y="Profit", hue="Buy/Sell")
